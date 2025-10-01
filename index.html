@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Мои учебные материалы</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>📚 Библиотека учебных материалов</h1>
+            <p>Здесь вы найдете все необходимые файлы для занятий.</p>
+        </header>
+
+        <section class="upload-section">
+            <h2>Загрузить новый материал (для учителя)</h2>
+            <input type="file" id="fileInput">
+            <button onclick="uploadFile()">Загрузить на сайт</button>
+            <p id="message"></p>
+        </section>
+
+        <section class="materials-section">
+            <h2>Доступные материалы</h2>
+            <div id="materialsList" class="materials-grid">
+                <!-- Список файлов будет генерироваться здесь автоматически -->
+                <p>Пока файлов нет.</p>
+            </div>
+        </section>
+
+        <footer>
+            <p>© 2023 Ваше Имя/Предмет</p>
+        </footer>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
