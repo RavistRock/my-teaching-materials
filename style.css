@@ -1,82 +1,42 @@
-body {
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    margin: 0;
-    padding: 0;
-    background-color: #f4f7fe;
-    color: #333;
-    line-height: 1.6;
+.file-actions {
+    margin-top: 10px;
+    display: flex;
+    gap: 10px;
+    justify-content: center;
 }
 
-.container {
-    max-width: 1000px;
-    margin: 20px auto;
-    padding: 20px;
-    background: white;
-    border-radius: 10px;
-    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
-}
-
-header {
-    text-align: center;
-    margin-bottom: 40px;
-    border-bottom: 2px solid #eaeaea;
-    padding-bottom: 20px;
-}
-
-header h1 {
-    color: #2c3e50;
-    margin-bottom: 10px;
-}
-
-.upload-section {
-    background: #f8f9fa;
-    padding: 20px;
-    border-radius: 8px;
-    margin-bottom: 30px;
-    border-left: 4px solid #3498db;
-}
-
-.upload-section h2 {
-    margin-top: 0;
-    color: #2980b9;
-}
-
-input[type="file"] {
-    margin: 10px 0;
-    padding: 8px;
-    border: 1px dashed #ccc;
-    border-radius: 4px;
-    width: 100%;
-    box-sizing: border-box;
-}
-
-button {
-    background-color: #3498db;
+.download-btn {
+    background-color: #27ae60;
     color: white;
-    border: none;
-    padding: 10px 20px;
-    border-radius: 5px;
-    cursor: pointer;
-    font-size: 16px;
+    padding: 5px 10px;
+    border-radius: 4px;
+    text-decoration: none;
+    font-size: 14px;
     transition: background-color 0.3s;
 }
 
-button:hover {
-    background-color: #2980b9;
+.download-btn:hover {
+    background-color: #219653;
+    text-decoration: none;
+    color: white;
 }
 
-#message {
-    margin-top: 10px;
-    font-weight: bold;
-    min-height: 20px;
+.delete-btn {
+    background-color: #e74c3c;
+    color: white;
+    border: none;
+    padding: 5px 10px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: background-color 0.3s;
 }
 
-.materials-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-    gap: 20px;
+.delete-btn:hover {
+    background-color: #c0392b;
 }
 
+/* Обновляем стиль карточки файла */
 .file-card {
     background: white;
     border: 1px solid #e1e1e1;
@@ -84,31 +44,13 @@ button:hover {
     padding: 15px;
     text-align: center;
     transition: transform 0.2s, box-shadow 0.2s;
-    text-decoration: none;
-    color: inherit;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    height: 180px;
 }
 
 .file-card:hover {
     transform: translateY(-5px);
     box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
-    text-decoration: none;
-    color: inherit;
-}
-
-.file-icon {
-    font-size: 2.5em;
-    margin-bottom: 10px;
-}
-
-.file-name {
-    font-weight: bold;
-    word-break: break-word;
-}
-
-footer {
-    text-align: center;
-    margin-top: 40px;
-    padding-top: 20px;
-    border-top: 1px solid #eaeaea;
-    color: #7f8c8d;
 }

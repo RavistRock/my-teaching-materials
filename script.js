@@ -59,6 +59,28 @@ function uploadFile() {
     reader.readAsDataURL(file);
 }
 
+// Функция для удаления файла
+function deleteFile(fileName) {
+    if (confirm(`Вы уверены, что хотите удалить файл "${fileName}"?`)) {
+        // Получаем текущий список файлов из LocalStorage
+        let uploadedFiles = JSON.parse(localStorage.getItem(STORAGE_KEY)) || [];
+
+        // Фильтруем массив, удаляя файл с указанным именем
+        uploadedFiles = uploadedFiles.filter(file => file.name !== fileName);
+
+        // Сохраняем обновленный список в LocalStorage
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(uploadedFiles));
+
+        // Обновляем отображение списка файлов
+        displayFiles();
+
+        // Показываем сообщение об удалении
+        const messageEl = document.getElementById('message');
+        messageEl.textContent = `Файл "${fileName}" был удален.`;
+        messageEl.style.color = 'orange';
+    }
+}
+
 // Функция для отображения списка файлов
 function displayFiles() {
     const materialsList = document.getElementById('materialsList');
@@ -74,9 +96,7 @@ function displayFiles() {
 
     // Для каждого файла создаем карточку
     uploadedFiles.forEach(file => {
-        const fileCard = document.createElement('a');
-        fileCard.href = file.data;
-        fileCard.download = file.name;
+        const fileCard = document.createElement('div');
         fileCard.className = 'file-card';
 
         // Определяем иконку в зависимости от типа файла
@@ -92,6 +112,10 @@ function displayFiles() {
             <div class="file-icon">${icon}</div>
             <div class="file-name">${file.name}</div>
             <div class="file-date">${file.uploadDate}</div>
+            <div class="file-actions">
+                <a href="${file.data}" download="${file.name}" class="download-btn">Скачать</a>
+                <button onclick="deleteFile('${file.name}')" class="delete-btn">Удалить</button>
+            </div>
         `;
 
         materialsList.appendChild(fileCard);
