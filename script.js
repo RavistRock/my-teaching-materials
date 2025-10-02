@@ -1,12 +1,12 @@
-// Ключ для хранения файлов в LocalStorage браузера
-const STORAGE_KEY = 'teacher_uploaded_files';
+// Замените ВЕСЬ код в script.js на этот:
+
+const MATERIALS_JSON = './materials.json';
 
 // Функция для загрузки файла
-function uploadFile() {
+async function uploadFile() {
     const fileInput = document.getElementById('fileInput');
     const messageEl = document.getElementById('message');
 
-    // Проверяем, выбран ли файл
     if (fileInput.files.length === 0) {
         messageEl.textContent = 'Пожалуйста, выберите файл.';
         messageEl.style.color = 'red';
@@ -16,65 +16,65 @@ function uploadFile() {
     const file = fileInput.files[0];
     const fileName = file.name;
 
-    // Создаем объект FileReader для чтения файла
     const reader = new FileReader();
 
-    reader.onload = function(e) {
-        // Получаем данные файла в виде строки base64
+    reader.onload = async function(e) {
         const fileData = e.target.result;
 
-        // Получаем текущий список файлов из LocalStorage
-        let uploadedFiles = JSON.parse(localStorage.getItem(STORAGE_KEY)) || [];
+        try {
+            // Загружаем текущие материалы
+            const response = await fetch(MATERIALS_JSON);
+            const data = await response.json();
+            let uploadedFiles = data.files || [];
 
-        // Проверяем, существует ли файл с таким именем
-        if (uploadedFiles.some(f => f.name === fileName)) {
-            messageEl.textContent = 'Файл с таким именем уже существует.';
-            messageEl.style.color = 'red';
-            return;
+            // Проверяем, существует ли файл
+            if (uploadedFiles.some(f => f.name === fileName)) {
+                messageEl.textContent = 'Файл с таким именем уже существует.';
+                messageEl.style.color = 'red';
+                return;
+            }
+
+            // Добавляем новый файл
+            uploadedFiles.push({
+                name: fileName,
+                type: file.type,
+                data: fileData,
+                uploadDate: new Date().toLocaleDateString('ru-RU')
+            });
+
+            // ВАЖНО: На GitHub Pages мы не можем сохранять в JSON файл,
+            // поэтому будем использовать localStorage как временное решение
+            // Для реального сайта нужен сервер
+            localStorage.setItem('teacher_files_backup', JSON.stringify(uploadedFiles));
+
+            // Обновляем отображение
+            displayFiles();
+
+            messageEl.textContent = `Файл "${fileName}" успешно загружен! (локально)`;
+            messageEl.style.color = 'green';
+            fileInput.value = '';
+
+            // Показываем подсказку для реального хостинга
+            console.log('Для реального сайта нужен хостинг с поддержкой PHP/Node.js');
+
+        } catch (error) {
+            console.error('Ошибка:', error);
+            messageEl.textContent = 'Ошибка загрузки. Используется локальное хранилище.';
+            messageEl.style.color = 'orange';
         }
-
-        // Добавляем новый файл в список
-        uploadedFiles.push({
-            name: fileName,
-            type: file.type,
-            data: fileData,
-            uploadDate: new Date().toLocaleDateString('ru-RU')
-        });
-
-        // Сохраняем обновленный список в LocalStorage
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(uploadedFiles));
-
-        // Обновляем отображение списка файлов
-        displayFiles();
-
-        // Выводим сообщение об успехе
-        messageEl.textContent = `Файл "${fileName}" успешно загружен!`;
-        messageEl.style.color = 'green';
-
-        // Очищаем поле выбора файла
-        fileInput.value = '';
     };
 
-    // Читаем файл как Data URL (base64)
     reader.readAsDataURL(file);
 }
 
 // Функция для удаления файла
 function deleteFile(fileName) {
     if (confirm(`Вы уверены, что хотите удалить файл "${fileName}"?`)) {
-        // Получаем текущий список файлов из LocalStorage
-        let uploadedFiles = JSON.parse(localStorage.getItem(STORAGE_KEY)) || [];
-
-        // Фильтруем массив, удаляя файл с указанным именем
+        let uploadedFiles = JSON.parse(localStorage.getItem('teacher_files_backup')) || [];
         uploadedFiles = uploadedFiles.filter(file => file.name !== fileName);
-
-        // Сохраняем обновленный список в LocalStorage
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(uploadedFiles));
-
-        // Обновляем отображение списка файлов
+        localStorage.setItem('teacher_files_backup', JSON.stringify(uploadedFiles));
         displayFiles();
 
-        // Показываем сообщение об удалении
         const messageEl = document.getElementById('message');
         messageEl.textContent = `Файл "${fileName}" был удален.`;
         messageEl.style.color = 'orange';
@@ -82,11 +82,29 @@ function deleteFile(fileName) {
 }
 
 // Функция для отображения списка файлов
-function displayFiles() {
+async function displayFiles() {
     const materialsList = document.getElementById('materialsList');
-    const uploadedFiles = JSON.parse(localStorage.getItem(STORAGE_KEY)) || [];
 
-    // Очищаем список
+    // Пробуем загрузить из JSON, если нет - из localStorage
+    let uploadedFiles = [];
+
+    try {
+        const response = await fetch(MATERIALS_JSON);
+        const data = await response.json();
+        uploadedFiles = data.files || [];
+
+        // Объединяем с локальными файлами (если есть)
+        const localFiles = JSON.parse(localStorage.getItem('teacher_files_backup')) || [];
+        const allFiles = [...uploadedFiles, ...localFiles.filter(localFile =>
+            !uploadedFiles.some(jsonFile => jsonFile.name === localFile.name)
+        )];
+
+        uploadedFiles = allFiles;
+    } catch (error) {
+        // Если JSON не доступен, используем localStorage
+        uploadedFiles = JSON.parse(localStorage.getItem('teacher_files_backup')) || [];
+    }
+
     materialsList.innerHTML = '';
 
     if (uploadedFiles.length === 0) {
@@ -94,13 +112,11 @@ function displayFiles() {
         return;
     }
 
-    // Для каждого файла создаем карточку
     uploadedFiles.forEach(file => {
         const fileCard = document.createElement('div');
         fileCard.className = 'file-card';
 
-        // Определяем иконку в зависимости от типа файла
-        let icon = '📄'; // Иконка по умолчанию
+        let icon = '📄';
         if (file.type.includes('pdf')) icon = '📕';
         else if (file.type.includes('word') || file.type.includes('document')) icon = '📘';
         else if (file.type.includes('image')) icon = '🖼️';
